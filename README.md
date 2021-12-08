@@ -1,12 +1,6 @@
 # Business-Forecasting-Forecasting-Footfalls-in-national-park-of-San-Diego-based-on-the-weather-
-
-We are forecasting the footfalls in the national park of San Diego based on the weather, because we want to know the amount of sale of tickets that will happen on any given day.
-2.Our forecast is point forecast my also contain a range.
-
-3.We will measure the accuracy of the forecast by following methods like MAD-mean absolute value MSE-mean squared error MPE-mean percentage error MAPE-mean absolute percentage error.
-
-4.Data sets, our weather data is 100MB plus not able to upload it so i have uploaded the summary of daily data with the footfalls.
-
-5.Our data has day wise air_temperature. We got our data from kaggle and it is in the format per minute data and we ae going to aggregate it in daily format. Our other data set is footfalls in national park in daily format.
-
-6.links: Riya: https://github.com/Riyaritajoy3 Chinmayee : https://github.com/chinmayee25
+We are forecasting the footfalls in the national park of California based on the weather, because we want to know the amount of sale of tickets that will happen on any given week. We can use this forecast in order to determine the weekly sales based on the weather and see if any special arrangements need to be made for the customers for example if its going to be a rainy day and based on the number of people anticipated if the stock of the raincovers is enough and so on.
+Our forecast is point forecast (average of weekly footfalls) may also contain a range (short term syas next 3 weeks).
+We will measure the accuracy of the forecast by following methods like MAD-mean absolute value MSE-mean squared error MPE-mean percentage error MAPE-mean absolute percentage error.
+Our data comprises of weekly data points, which consists of fields of air_temp (average of the weekly air_temp) and Footfalls(average of weekly footfalls). We got our data from kaggle and it was in the format per minute data and we aggregated it in weekly format. Our other data set is footfalls in national park in daily format which we aggregated into weekly format. The final data set is uploaded here
+links of my projectmates: Riya: https://github.com/Riyaritajoy3 Chinmayee:https://github.com/Chinmayee25
