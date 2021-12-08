@@ -1,0 +1,225 @@
+---
+title: "Predicting footfall as per the temperature"
+output: html_notebook
+---
+#importing fpp,fpp2,TTR packages
+```{r message=FALSE}
+library(fpp)
+library(fpp2)
+library(TTR)
+```
+
+#Name of the data
+```{r}
+Final 
+```
+
+#plotting a time series graph, summary and boxplot 
+```{r}
+t1<- ts(Final$footfalls,frequency=52, start= c(2011,09))
+plot(t1, main="Time series plot")
+summary(t1)
+boxplot(t1, main="Boxplot of Time Series")
+Acf(t1)
+```
+
+#Decomposition of the time series
+```{r}
+decomp <- stl(t1,s.window ="periodic")
+plot(decomp)
+```
+
+#seasonally adjusting the time series 
+
+# A seasonally adjusted value removes the seasonal effect from a value so that trend can be seen more clearly 
+```{r}
+decomp_sesadj <- seasadj(decomp)
+decomp1<- stl(decomp_sesadj, s.window ="periodic")
+plot(decomp1)
+```
+
+#plot of time series and decomp adjusted for seasonality 
+```{r}
+plot(t1)
+lines(decomp_sesadj,col="Red")
+```
+
+##1. Mean forecast
+```{r}
+mean_forecast <- meanf(t1,5)
+mean_forecast
+plot(mean_forecast)
+```
+
+#Taking the residuals of mean_forecast and plotting the Acf 
+```{r}
+r<-mean_forecast$residuals
+Acf(r)
+```
+
+# Cheching the ACCURACY 
+```{r}
+accuracy(mean_forecast)
+```
+
+##2. Naive 
+# Naive is a simple algorithm. it may or may not solve the problem but it provides the benchmark for all other models 
+# Naive model simply takes the last observed value and predicts it for the future (903 in our case)
+#plotting naive model and attributes of naive model 
+
+```{r}
+naive_forecast <- naive(t1)
+attributes(naive_forecast)
+naive_forecast
+plot(naive_forecast)
+```
+
+# Taking the residuals of naive_forecast and plotting the Acf 
+
+```{r}
+plot(naive_forecast$residuals)
+Acf(naive_forecast$residuals) #does not show spike at lag 0 and starts from lag 1
+```
+
+#plotting the histogram 
+```{r}
+hist(naive_forecast$residuals)
+```
+
+# plotting fitted vs residual of naive
+# it is used to detech outliers, error variance, and non linearity 
+```{r}
+plot(naive_forecast$fitted,naive_forecast$residuals,xy.labels= FALSE,xy.lines = FALSE)
+```
+
+#measuring the accuracy
+```{r}
+accuracy(naive_forecast)
+## MAPE = 11.15
+```
+
+##3. SNAIVE MODEL
+# plotting snaive model and attributes of snaive model 
+```{r}
+snaive_forecast<- snaive(t1, h=4)
+snaive_forecast
+plot(snaive_forecast)
+lines(snaive_forecast$mean,col="pink")
+lines(snaive_forecast$fitted,col="purple")
+```
+
+#Acf and residuals, histogram
+```{r}
+Acf(snaive_forecast$residuals)  # shows if the points are co-related 
+plot(snaive_forecast$residuals)
+hist(snaive_forecast$residuals)
+plot(snaive_forecast$fitted,snaive_forecast$residuals,xy.labels= FALSE,xy.lines = FALSE, main="Residual Plot")
+```
+
+#Accuracy for snaive forecast
+```{r}
+accuracy(snaive_forecast)
+```
+
+##4. Moving Average model
+```{r}
+MA3 <- ma(t1,order=3)
+MA6 <- ma(t1,order=6)
+MA9 <- ma(t1,order=9)
+plot(MA3, col="Red", main="Graph of Moving average with order 3")
+plot(MA6, col="Blue", main="Graph of Moving average with order 6")
+plot(MA9, col="Green", main="Graph of Moving average with order 9")
+plot(t1, main="Graph of Time series graph with Moving avg plot with order 3,6,9")
+lines(MA3, col='Red')
+lines(MA6, col='Blue')
+lines(MA9, col='Green')
+```
+
+#Forecast using MA and its accuracy
+```{r}
+MA3_forecast <- forecast(MA3, h=4)
+MA3_forecast
+plot(MA3_forecast,col= "Red", main="Graph of time series with moving average forecast with order 3")
+lines(t1)
+accuracy(MA3_forecast)
+MA6_forecast <- forecast(MA6, h=4)
+MA6_forecast
+plot(MA6_forecast,col= "Blue", main="Graph of time series with moving average forecast with order 6")
+lines(t1)
+accuracy(MA6_forecast)
+MA9_forecast <- forecast(MA9, h=4)
+MA9_forecast
+plot(MA9_forecast,col= "Green", main="Graph of time series with moving average forecast with order 9")
+lines(t1)
+accuracy(MA9_forecast)
+```
+
+
+
+##5. Holtswinter method
+```{r}
+t1_hw <- HoltWinters(t1)
+t1_hw
+```
+
+#attibutes of Holtswinter
+```{r}
+attributes(t1_hw)
+t1_hw$SSE
+t1_hw$coefficients
+```
+
+#forecast with Holtswinter, Acf plot
+```{r}
+forecast_hw <- forecast(t1_hw,h=5)
+forecast_hw
+plot(forecast_hw)
+
+```
+
+#Accuracy of Holtswinter
+```{r}
+accuracy(forecast_hw)
+```
+
+##6. Auto Arima
+```{r}
+adf.test(t1)
+kpss.test(t1)
+nsdiffs(t1)
+tsdisplay(t1)
+auto.arima(t1)
+# use this in the exam stepwise=false and trace=true
+arima_model<- auto.arima(t1, trace=TRUE, stepwise=FALSE)
+```
+
+#forecast using Arima and its accuracy
+```{r}
+arima_forecast<- forecast(arima_model)
+arima_forecast
+accuracy(arima_forecast)
+```
+
+##7. Linear Regression
+```{r message=FALSE}
+library(UsingR)
+model <- lm(Final$footfalls~Final$air_temp)
+summary(model)
+plot(Final$footfalls,Final$air_temp,pch=19, col="blue", main="Scatter Plot")
+```
+#correlation check
+```{r}
+model1<- cor(Final$footfalls,Final$air_temp)
+model1
+```
+
+#Plotting the model
+```{r}
+plot(Final$footfalls~Final$air_temp, pch=19, col="blue", main="Scatter Plot with R2 value" )
+abline(lm(Final$footfalls~Final$air_temp), col="red")
+legend("topright", bty="n", legend=paste("R2 is", format(summary(model)$adj.r.squared, digits=4)))
+#lines(model$fitted.values, col="Red")
+#plot(model$residuals, model$fitted.values)
+
+```
+
